@@ -1,0 +1,383 @@
+1. Creating customer table
+
+create table Customers(
+	
+	###important
+	user_id serial primary Key,
+	
+	first_name varchar(255)
+	not null,
+	
+	last_name varchar(255)
+	not null,
+	
+	Phone_number varchar(15)
+	unique not null,
+	
+	###important
+	date datetime,
+	
+	product_name varchar(255)
+	not null
+)
+	
+2. Reference table products
+
+create table Products(
+	
+	###important
+	user_id integer references
+	Customers(user_id),
+	
+	product_id serial primary key,
+	
+	product_name varchar(255)
+	
+)
+
+
+3. take out all records from customer table.
+
+select * from customers;
+
+
+4. Concate first name with last name
+
+select concat(first_name,' ',last_name) from customers;
+
+select concat(first_name,' ',last_name) as full_name from customers;
+
+select first_name|| ' ' || last_name from customers;
+
+
+5. Give me the max salary from salarys table.
+
+select max(salary) from Salarys;
+
+
+6. I want month in string from date column.
+
+select to_char(date,'month') from Customers
+
+
+###  important
+7. I want only month from date column.  
+
+select extract(month from date) from customers;
+
+
+###  important
+8. Take out the employee joined org on 29th april.
+
+select employee_id, employee_name from employee
+where extract(year from date) = 2023
+  and extract(month from date) = 4
+  and extract(day from date) = 29;
+
+
+9. Salary of the employee between 100000 to 500000.
+
+select employee_id, first_name, last_name from employeee
+where salary between 100000 and 500000;
+
+
+###  important
+10. Employee joined recentaly to cg.
+
+select employee_id, first_name, last_name from employeee
+order by date DESC
+order by first_name ASC
+
+
+11. employee name start with P and end with l.
+
+select first_name from employee
+where first_name like 'P%' and '%L';
+
+select first_name from employee
+where first_name like '%yal%;
+
+select first_name from employee
+where first_name like '%P___L';
+
+select * from employee
+where first_name = 'Payal';
+
+
+12. I want top 10 students who scored highest in exam.
+
+select student_idx , first_name from students
+where score >= 90
+order by score in DESC
+order by student_id ASC
+limit 10
+
+13. we want the highest salary of each department.
+
+select department, max(salary) from employees
+group by department
+having max(salary) >= 100000;
+
+14. we want the customer id and product name which they have purchase.
+
+select c.customer_id,c.product_id,p.product_name from customer c
+join product p
+on c.product_id = p.product_id
+
+
+select c.customer_id,c.product_id,p.product_name from customer c
+inner join product p
+using(product_id)
+
+15. I want duplicate of each row.
+
+select employee_id, first_name, last_name from employeees
+union all
+select employee_id, first_name, last_name from employee
+
+
+Day 2
+--------------------------------------------------------------------------------
+1. insert the value into customer table.
+
+insert into( customer_id, first_name, last_name)
+values
+(1,'Pranay','Bedse')
+(2,'Payal','B')
+(3,'jay','shah')
+(4,'mansi','y')
+
+2. Update the last_name of payal.
+
+update customer
+set last_name = 'Bakade'
+where first_name = 'Payal'
+
+3. upsert
+
+upsert into  (customer_id, first_name, last_name)
+values
+(1,'Pranay','Bedse')
+(2,'Payal','B')
+(3,'jay','shah')
+(4,'mansi','y')
+
+4. delete the record where first name is mansi.
+## delete is used to remove one record
+
+delete from customer
+where frist_name = 'Mansi';
+
+## remove complete table
+delete from customer;
+
+Truncate table customer;
+
+## remove the table from dataset
+drop table customer.
+
+
+5. Alter statement
+
+### renaming table name
+alter table customer
+rename to customer_2
+
+### rename column name
+alter table customer
+alter customer_id rename to customer_id_2
+
+### droping column
+alter table customer
+drop customer_id
+
+### add column
+alter table customer
+add customer_id  primary key;
+
+### remove the constrin of column
+alter table customer
+alter customer_id drop primary key
+
+### remove the constrin of column
+alter table customer
+alter customer_id set primary key
+
+
+6. duplicate the col1 to col2.
+
+	select *, first_name as new_name from customer	
+
+
+
+7. copy the table
+
+	update customer_2
+	select * from customer
+
+8. Increase income of all employees by 5% in table.
+
+	update employees
+	set salary = salary + (salary * 0.05)
+
+9. find the number of employee work in department DSA
+
+	select count(*) from employees
+	where department = 'DSA';
+
+### Important
+10. find the 2nd highest salary.
+
+	select first_name, max(salary) from employees
+	where salary <> (select max(salary) from employees);
+
+
+11. I want the customer visited first time our shop.
+
+	select customer_id, min(date) from customers;
+
+
+12. find 3rd highest salary.
+
+	select Distinct(salary) from emp_salary e1
+	where 4-1 = (select count(distinct(e2.salary)) from emp_salary e2 
+				where e2.salary > e1.salary)
+
+
+12. give me highest and lowest salary from employee table
+
+select *, department, max(salary), min(salary) from employee_salary
+group by (department)
+
+
+13. drop duplicate records.
+	select col1 ,col2 , count(*) from customers
+	group by col1,col2
+	having count(*) < 1
+
+
+
+----------------------------------------------------------------------------------------------------
+### continue from tommorow
+### case statement
+### sub quarry 
+### windows function
+
+
+1. find out how many new customer visiting our shop and how many customer visiting again.
+
+select customer_id,first_name,date,min(date) as first_visiting from customer c1
+group by (customer_id,first_name,date)
+
+	select *,
+	case
+	when date = first_visiting then 'new visitor'
+	when date <> first_visiting then 'old customer'
+	else ok
+	end as Status
+	from customer c2
+
+
+2. Order the salary into DESC using windows.
+
+	select employee_id, first_name, salary
+		row_number() over ( order by salary DESC) 
+	from employee
+
+3. find 5th highest salary.
+
+	select * from (
+	(select employee_id, first_name, salary
+		row_number() over ( order by salary DESC) as row_num from employee) as temp
+	where row_num  = 5
+
+4. To assign row number for partition by each location.
+
+	select employee_id, first_name, salary
+		row_number() over (partition by location order by salary DESC) 
+	from employee
+s
+5. highest salary for each location:
+
+	select * from (select employee_id, first_name, salary
+		row_number() over (partition by location order by salary DESC) as row_num
+	from employee) temp 
+	where row_num = 1
+
+
+#### Row Number: each row assgin by a different number even there are duplicates
+
+### Rank: It handle duplicate it assign the same number to duplicate but it will jump one digit up when there are duplicate.
+like rank: (1,2,3,3,5,6,7,8,9)
+
+### Dence Rank: It handle duplicate it assign the same number to duplicate but it will not jump one digit up when there are duplicate.
+like Dence rank: (1,2,3,4,5,6,7,8,9)
+
+
+## Tree:
+you are given a table, BST, containing two columns: N and P, where N represents the value of a node in Binary Tree, and P is the parent of N.
+
+
+
+### Write a query to find the node type of Binary Tree ordered by the value of the node. Output one of the following for each node:
+
+	Root: If node is root node.
+	Leaf: If node is leaf node.
+	Inner: If node is neither root nor leaf node.
+	Sample Input
+
+RESULT:
+	SELECT 
+		N,
+		CASE
+			WHEN P IS NULL THEN 'Root'
+			WHEN N NOT IN (SELECT DISTINCT P FROM BST WHERE P IS NOT NULL) THEN 'Leaf'
+			ELSE 'Inner'
+		END AS NodeType
+	FROM BST
+	ORDER BY N;
+
+
+## Extract year or date from dataset.
+
+	select DATEPART(YEAR,JOININGDATE) FROM EMPLOYEE
+	
+	select DATEPART(MONTH,JOININGDATE) FROM EMPLOYEE
+
+## Get all employee details from EmployeeDetail table whose joining year is 2013.
+
+	SELECT * FROM EMPLOYEE
+	WHERE DATEPART(YYYY,JoiningDate) = '2013'
+
+	SELECT * FROM EMPLOYEE
+	WHERE DATEPART(MM,JoiningDate) = '3'
+	
+
+## FOR CURRENT DATEPAR
+	
+	SELECT GETDATE() FROM Employee
+	
+## DATE DIFFERENCE
+
+	SELEECT DATEDIFF(mm,GETDATE(), JOININGDATE) AS TOTAL_MONTH_DIFF FROM EMPLOYEE
+	
+## Select first name from "EmployeeDetail" table after removing white spaces from 
+right side.
+
+	SELECT RTRIM(FirstName) AS [FirstName] FROM [EmployeeDetail]
+	
+	SELECT LTRIM(FirstName) AS [FirstName] FROM [EmployeeDetail]
+	
+## secount Highest salary.
+
+	SELECT * FROM Employee
+	ORDER BY SALARY DESC
+	LIMIT 1
+	
+	
+	SELECT TOP 1 SALARY FROM 
+	( SELECT TOP 2 SALARY FROM Employee
+	 ORDER BY SALARY DESC) t
+	 ORDER BY SALARY ASC
+	
+	
